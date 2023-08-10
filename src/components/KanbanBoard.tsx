@@ -271,24 +271,20 @@ function KanbanBoard() {
   }
 
   function onDragEnd(event: DragEndEvent) {
-    setActiveColumn(null);
-    setActiveTask(null);
+    const { active, over } = event
 
-    const { active, over } = event;
-    if (!over) return;
+    const isActiveATask = active.data.current?.type === 'Task'
+    const isOverATask = over?.data.current?.type === 'Task'
 
-    const activeId = active.id;
-    const overId = over.id;
+    if (active.id !== over?.id && isActiveATask === isOverATask) {
+      setColumns(columns => {
+        const activeColumnIndex = columns.findIndex(col => col.id === active.id)
 
-    if (activeId === overId) return;
+        const overColumnIndex = columns.findIndex(col => col.id === over?.id)
 
-    setColumns((columns) => {
-      const activeColumnIndex = columns.findIndex((col) => col.id === activeId);
-
-      const overColumnIndex = columns.findIndex((col) => col.id === overId);
-
-      return arrayMove(columns, activeColumnIndex, overColumnIndex);
-    });
+        return arrayMove(columns, activeColumnIndex, overColumnIndex)
+      })
+    }
   }
 
   function onDragOver(event: DragOverEvent) {
